@@ -96,37 +96,31 @@ void main() {
     },
   );
 
-  test(
-    'changing episode cancels an in-flight fallback and releases its late session',
-    () async {
-      final repository = DeferredRepository();
-      final loader = PlaybackLoader(repository);
-      final pending = loader.fallback(
-        const PlaybackPlan(
-          url: 'https://example.test/first.mp4',
-          session: 'first',
-          routeCount: 2,
-        ),
-      );
-      await tick();
-      final current = loader.load(FixtureRepository.free, episode(2));
-      await tick();
-      repository.pending[2]!.complete(
-        const PlaybackPlan(
-          url: 'https://example.test/current.mp4',
-          session: 'current',
-        ),
-      );
-      expect((await current)?.session, 'current');
-      repository.alternate!.complete(
-        const PlaybackPlan(
-          url: 'https://example.test/late.mp4',
-          session: 'late',
-        ),
-      );
-      expect(await pending, isNull);
-      expect(repository.released, ['late']);
-      await loader.close();
-    },
-  );
+  test('changing episode cancels an in-flight fallback and releases its late session', () async {
+    final repository = DeferredRepository();
+    final loader = PlaybackLoader(repository);
+    final pending = loader.fallback(
+      const PlaybackPlan(
+        url: 'https://example.test/first.mp4',
+        session: 'first',
+        routeCount: 2,
+      ),
+    );
+    await tick();
+    final current = loader.load(FixtureRepository.free, episode(2));
+    await tick();
+    repository.pending[2]!.complete(
+      const PlaybackPlan(
+        url: 'https://example.test/current.mp4',
+        session: 'current',
+      ),
+    );
+    expect((await current)?.session, 'current');
+    repository.alternate!.complete(
+      const PlaybackPlan(url: 'https://example.test/late.mp4', session: 'late'),
+    );
+    expect(await pending, isNull);
+    expect(repository.released, ['late']);
+    await loader.close();
+  });
 }

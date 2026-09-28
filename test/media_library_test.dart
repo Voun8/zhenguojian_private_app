@@ -201,52 +201,43 @@ void main() {
     },
   );
 
-  test(
-    'cancelling while resolving local media releases the lease without starting FFmpeg',
-    () async {
-      final directory = await Directory.systemTemp.createTemp('zgj-cancel-');
-      SharedPreferences.setMockInitialValues({});
-      final store = LocalStore(await SharedPreferences.getInstance());
-      final executor = ProcessMediaExecutor();
-      const drama = Drama(
-        id: 'hongguo:cancel',
-        source: 'hongguo',
-        title: '取消测试',
+  test('cancelling while resolving local media releases the lease without starting FFmpeg', () async {
+    final directory = await Directory.systemTemp.createTemp('zgj-cancel-');
+    SharedPreferences.setMockInitialValues({});
+    final store = LocalStore(await SharedPreferences.getInstance());
+    final executor = ProcessMediaExecutor();
+    const drama = Drama(id: 'hongguo:cancel', source: 'hongguo', title: '取消测试');
+    final jobs = [
+      for (var i = 0; i < 2; i++)
+        DownloadJob(
+          id: 'cancel-$i',
+          drama: drama,
+          episode: Episode({'id': '$i', 'currentEpisode': i + 1}, i + 1),
+          state: 'completed',
+          created: i + 1,
+        ),
+    ];
+    final repository = FileRepository(directory.path, [
+      'unused-1',
+      'unused-2',
+    ], jobs);
+    final library = MediaLibrary(repository, store, executor: executor);
+    repository.onLocalPlayback = () => unawaited(library.cancel());
+    try {
+      await expectLater(
+        library.merge(jobs),
+        throwsA(predicate((Object error) => error.toString().contains('已取消'))),
       );
-      final jobs = [
-        for (var i = 0; i < 2; i++)
-          DownloadJob(
-            id: 'cancel-$i',
-            drama: drama,
-            episode: Episode({'id': '$i', 'currentEpisode': i + 1}, i + 1),
-            state: 'completed',
-            created: i + 1,
-          ),
-      ];
-      final repository = FileRepository(directory.path, [
-        'unused-1',
-        'unused-2',
-      ], jobs);
-      final library = MediaLibrary(repository, store, executor: executor);
-      repository.onLocalPlayback = () => unawaited(library.cancel());
-      try {
-        await expectLater(
-          library.merge(jobs),
-          throwsA(
-            predicate((Object error) => error.toString().contains('已取消')),
-          ),
-        );
-        expect(executor.commands, isEmpty);
-        expect(repository.leased, isFalse);
-        expect(library.busy, isFalse);
-        expect(directory.listSync(), isEmpty);
-      } finally {
-        library.dispose();
-        store.dispose();
-        await directory.delete(recursive: true);
-      }
-    },
-  );
+      expect(executor.commands, isEmpty);
+      expect(repository.leased, isFalse);
+      expect(library.busy, isFalse);
+      expect(directory.listSync(), isEmpty);
+    } finally {
+      library.dispose();
+      store.dispose();
+      await directory.delete(recursive: true);
+    }
+  });
 
   bool available;
   try {
@@ -347,9 +338,8 @@ void main() {
           commandsBefore,
           reason: 'unchanged exports should not be remuxed again',
         );
-        final nfo = await File(
-          path.join(show.path, 'tvshow.nfo'),
-        ).readAsString();
+        final nfo = await File(path.join(show.path, 'tvshow.nfo'))
+            .readAsString();
         expect(nfo, contains('合成 &lt;&amp;&gt; 测试'));
         expect(nfo, contains('https://example.invalid/poster.jpg'));
         for (final file in files) {

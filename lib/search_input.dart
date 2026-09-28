@@ -70,9 +70,11 @@ class _SearchInputState extends State<SearchInput> {
     _pending = pending;
     _timer = Timer(const Duration(milliseconds: 300), () async {
       try {
-        final result = (await widget.suggestions!(
-          query,
-        )).where((s) => s.trim().isNotEmpty).toSet().take(10).toList();
+        final result = (await widget.suggestions!(query))
+            .where((s) => s.trim().isNotEmpty)
+            .toSet()
+            .take(10)
+            .toList();
         if (generation == _generation && mounted) {
           if (_cache.length >= 32) _cache.remove(_cache.keys.first);
           _cache[query] = result;

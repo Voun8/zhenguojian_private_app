@@ -639,9 +639,8 @@ class _PlayerScreenState extends State<PlayerScreen>
       );
     } catch (error) {
       if (mounted && !_closed) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
       }
     } finally {
       if (mounted && !_closed) setState(() => _panelOpen = false);
@@ -1146,9 +1145,8 @@ class _PlayerScreenState extends State<PlayerScreen>
 
   void _notice(String message) {
     if (!mounted || _closed) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _setPreferences(PlaybackPreferences preferences) async {
@@ -1903,9 +1901,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                   children: [
                     Text(
                       drama.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     if (meta.isNotEmpty) ...[
                       const SizedBox(height: 6),

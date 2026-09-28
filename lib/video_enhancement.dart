@@ -719,17 +719,15 @@ class VideoEnhancementController extends ChangeNotifier {
         (height - selected.output!.height).abs() <= 4;
   }
 
-  bool _isOwnPass(
-    String description,
-    VideoEnhancementBackend backend,
-  ) => switch (backend) {
-    VideoEnhancementBackend.ravu => description.contains('RAVU'),
-    VideoEnhancementBackend.anime => description.contains('Anime4K'),
-    VideoEnhancementBackend.fsrcnnx => RegExp(
-      r'feature map [12]|mapping [1-4]_[12]|sub-band residuals [12]|sub-pixel convolution 1|aggregation',
-    ).hasMatch(description),
-    _ => false,
-  };
+  bool _isOwnPass(String description, VideoEnhancementBackend backend) =>
+      switch (backend) {
+        VideoEnhancementBackend.ravu => description.contains('RAVU'),
+        VideoEnhancementBackend.anime => description.contains('Anime4K'),
+        VideoEnhancementBackend.fsrcnnx => RegExp(
+          r'feature map [12]|mapping [1-4]_[12]|sub-band residuals [12]|sub-pixel convolution 1|aggregation',
+        ).hasMatch(description),
+        _ => false,
+      };
 
   void _watchPerformance(VideoEnhancementDecision selected, List fresh) {
     final now = DateTime.now();

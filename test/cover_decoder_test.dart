@@ -20,9 +20,8 @@ class CoverExecutor implements MediaExecutor {
     try {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       if (fail) throw StateError('synthetic decoder failure');
-      await File(
-        arguments.last,
-      ).writeAsBytes(await File('test/fixtures/cover.jpg').readAsBytes());
+      await File(arguments.last)
+          .writeAsBytes(await File('test/fixtures/cover.jpg').readAsBytes());
     } finally {
       onEnd();
     }

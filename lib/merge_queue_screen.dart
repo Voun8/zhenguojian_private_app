@@ -142,9 +142,8 @@ class _MergeQueueScreenState extends State<MergeQueueScreen> {
         for (final id in selected) groups[id]!,
       ], cleanup: cleanup);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('已加入 $count 部，已有合并任务自动跳过')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('已加入 $count 部，已有合并任务自动跳过')));
       }
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
@@ -219,9 +218,9 @@ class _MergeQueueScreenState extends State<MergeQueueScreen> {
                                     children: [
                                       Text(
                                         job.drama.title,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
                                       ),
                                       const SizedBox(height: 6),
                                       Text(

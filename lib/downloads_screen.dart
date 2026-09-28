@@ -113,9 +113,8 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 
   void _message(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -626,10 +625,8 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   Future<void> _televisionSearch() async {
     final value = await showDialog<String>(
       context: context,
-      builder: (_) => TelevisionSearchDialog(
-        title: '搜索下载合集',
-        initialValue: _search.text,
-      ),
+      builder: (_) =>
+          TelevisionSearchDialog(title: '搜索下载合集', initialValue: _search.text),
     );
     if (value == null || !mounted) return;
     setState(() => _search.text = value);

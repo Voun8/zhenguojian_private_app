@@ -73,9 +73,8 @@ Future<LanConnection?> chooseLanDevice(
 void openLanSync(BuildContext context) {
   final controller = LanController.current;
   if (controller == null) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('设备互联尚未就绪')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('设备互联尚未就绪')));
     return;
   }
   Navigator.push(

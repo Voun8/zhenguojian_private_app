@@ -16,9 +16,8 @@ Future<void> saveUserChange(
     await action();
   } catch (_) {
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('未能保存，请检查存储空间和权限后重试。')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('未能保存，请检查存储空间和权限后重试。')));
     }
   }
 }
@@ -347,15 +346,13 @@ class DramaTile extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   static double titleHeight(BuildContext context) =>
-      MediaQuery.textScalerOf(
-        context,
-      ).scale(AppLayout.isTelevision(context) ? 17 : 14) *
+      MediaQuery.textScalerOf(context)
+          .scale(AppLayout.isTelevision(context) ? 17 : 14) *
       2.6;
 
   static double subtitleHeight(BuildContext context) =>
-      MediaQuery.textScalerOf(
-        context,
-      ).scale(AppLayout.isTelevision(context) ? 14 : 12) *
+      MediaQuery.textScalerOf(context)
+          .scale(AppLayout.isTelevision(context) ? 14 : 12) *
       1.3;
 
   static double extentFor(BuildContext context, double width) =>

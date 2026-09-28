@@ -174,42 +174,35 @@ void main() {
     },
   );
 
-  test(
-    'queued mutations preserve all successful records and isolate playback preferences',
-    () async {
-      final (store, platform) = await create();
-      await Future.wait([
-        store.toggleFavorite(drama),
-        store.toggleFavorite(next),
-      ]);
-      await store.saveProfile(
-        id: 'default',
-        name: '管理员',
-        sources: [],
-        download: true,
-        pin: 'abcdef12',
-      );
-      await store.setPlaybackPreferences(
-        const PlaybackPreferences(speed: 1.5, quality: 720, autoAdvance: false),
-      );
-      await store.saveProfile(
-        name: '访客',
-        sources: ['hongguo'],
-        download: false,
-      );
-      final visitor = store.profiles.firstWhere((profile) => !profile.admin);
-      await store.switchProfile(visitor.id);
-      expect(store.playbackPreferences.speed, 1);
-      await store.setPlaybackPreferences(const PlaybackPreferences(speed: .75));
-      await store.switchProfile('default', pin: 'abcdef12');
-      expect(store.playbackPreferences.speed, 1.5);
-      final restored = await restart(platform);
-      expect(restored.locked, isTrue);
-      await restored.switchProfile('default', pin: 'abcdef12');
-      expect(restored.favorites.length, 2);
-      expect(restored.playbackPreferences.autoAdvance, isFalse);
-    },
-  );
+  test('queued mutations preserve all successful records and isolate playback preferences', () async {
+    final (store, platform) = await create();
+    await Future.wait([
+      store.toggleFavorite(drama),
+      store.toggleFavorite(next),
+    ]);
+    await store.saveProfile(
+      id: 'default',
+      name: '管理员',
+      sources: [],
+      download: true,
+      pin: 'abcdef12',
+    );
+    await store.setPlaybackPreferences(
+      const PlaybackPreferences(speed: 1.5, quality: 720, autoAdvance: false),
+    );
+    await store.saveProfile(name: '访客', sources: ['hongguo'], download: false);
+    final visitor = store.profiles.firstWhere((profile) => !profile.admin);
+    await store.switchProfile(visitor.id);
+    expect(store.playbackPreferences.speed, 1);
+    await store.setPlaybackPreferences(const PlaybackPreferences(speed: .75));
+    await store.switchProfile('default', pin: 'abcdef12');
+    expect(store.playbackPreferences.speed, 1.5);
+    final restored = await restart(platform);
+    expect(restored.locked, isTrue);
+    await restored.switchProfile('default', pin: 'abcdef12');
+    expect(restored.favorites.length, 2);
+    expect(restored.playbackPreferences.autoAdvance, isFalse);
+  });
 
   for (final records in <Object>[
     'broken-json',

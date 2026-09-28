@@ -125,8 +125,7 @@ void main() {
             name: '管理员',
             admin: true,
             salt: '11111111111111111111111111111111',
-            pinHash:
-                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            pinHash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           ).toJson(),
           const LocalProfile(
             id: 'viewer',
@@ -176,8 +175,7 @@ void main() {
           name: '管理员',
           admin: true,
           salt: '11111111111111111111111111111111',
-          pinHash:
-              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          pinHash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         ).toJson(),
         const LocalProfile(
           id: 'viewer',

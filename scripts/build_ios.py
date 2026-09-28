@@ -7,6 +7,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from app_build import BuildVariant, add_variant_argument
@@ -103,8 +104,12 @@ def main():
         for symbol in ['_DuanjuRequest', '_DuanjuFree']:
             if symbol not in symbols:
                 raise SystemExit('iOS 包缺少 FFI 入口：' + symbol)
-        destination = output / f'{variant.slug}-{version}-ios-unsigned-app.zip'
-        run(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', str(application), str(destination)])
+        destination = output / f'{variant.slug}-{version}-ios-unsigned.ipa'
+        with tempfile.TemporaryDirectory() as temporary:
+            payload = Path(temporary) / 'Payload'
+            payload.mkdir()
+            run(['ditto', str(application), str(payload / application.name)])
+            run(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', str(payload), str(destination)])
         artifacts.append(destination)
     if not artifacts:
         raise SystemExit('未生成 iOS 安装包。')

@@ -137,38 +137,31 @@ void main() {
     }
   }
 
-  test(
-    'local-only loader never falls through to online; explicit online bypasses it',
-    () async {
-      final repository = DownloadRepository()..missing = true;
-      final loader = PlaybackLoader(repository);
-      await expectLater(
-        loader.load(
-          FixtureRepository.free,
-          repository.episode(1),
-          localOnly: true,
-        ),
-        throwsA(
-          isA<AppFailure>().having(
-            (error) => error.code,
-            'code',
-            'local_media',
-          ),
-        ),
-      );
-      expect(repository.onlineCalls, 0);
-      final plan = await loader.load(
+  test('local-only loader never falls through to online; explicit online bypasses it', () async {
+    final repository = DownloadRepository()..missing = true;
+    final loader = PlaybackLoader(repository);
+    await expectLater(
+      loader.load(
         FixtureRepository.free,
         repository.episode(1),
         localOnly: true,
-        online: true,
-      );
-      expect(plan!.local, isFalse);
-      expect(repository.localCalls, 1);
-      expect(repository.onlineCalls, 1);
-      await loader.close();
-    },
-  );
+      ),
+      throwsA(
+        isA<AppFailure>().having((error) => error.code, 'code', 'local_media'),
+      ),
+    );
+    expect(repository.onlineCalls, 0);
+    final plan = await loader.load(
+      FixtureRepository.free,
+      repository.episode(1),
+      localOnly: true,
+      online: true,
+    );
+    expect(plan!.local, isFalse);
+    expect(repository.localCalls, 1);
+    expect(repository.onlineCalls, 1);
+    await loader.close();
+  });
 
   for (final added in [2, 0]) {
     testWidgets(

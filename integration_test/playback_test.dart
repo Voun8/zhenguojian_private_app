@@ -549,9 +549,8 @@ void main() {
         await binding.takeScreenshot('android-offline-playback');
         await tester.tap(
           find.byTooltip(
-            MaterialLocalizations.of(
-              tester.element(find.byType(Video)),
-            ).backButtonTooltip,
+            MaterialLocalizations.of(tester.element(find.byType(Video)))
+                .backButtonTooltip,
           ),
         );
         await until(

@@ -164,9 +164,9 @@ class _BatchDownloadScreenState extends State<BatchDownloadScreen> {
                                     style: item.error == null
                                         ? null
                                         : TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.error,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .error,
                                           ),
                                   ),
                                 ),

@@ -24,6 +24,8 @@ Future<void> runPackageSmoke(List<String> arguments) async {
       input,
       '-map',
       '0:v:0',
+      '-map',
+      '0:a:0',
       '-c',
       'copy',
       remuxed.path,
@@ -32,7 +34,7 @@ Future<void> runPackageSmoke(List<String> arguments) async {
     player = Player(
       configuration: const PlayerConfiguration(muted: true, vo: 'null'),
     );
-    await player.setAudioTrack(AudioTrack.no());
+    await (player.platform as NativePlayer).setProperty('ao', 'null');
     final advancing = player.stream.position.firstWhere(
       (time) => time.inMilliseconds >= 400,
     );
