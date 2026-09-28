@@ -189,7 +189,7 @@ class _PlayerScreenState extends State<PlayerScreen>
         ? VideoController(
             _player,
             configuration: VideoControllerConfiguration(
-              enableHardwareAcceleration: !Platform.isIOS,
+              enableHardwareAcceleration: true,
             ),
           )
         : null;
