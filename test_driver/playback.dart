@@ -15,9 +15,8 @@ Future<void> main() async {
     responseDataCallback: (data) async {
       final report = Map<String, dynamic>.from(data ?? {})
         ..remove('screenshots');
-      await File(
-        '${output.path}/playback.json',
-      ).writeAsString(const JsonEncoder.withIndent('  ').convert(report));
+      await File('${output.path}/playback.json')
+          .writeAsString(const JsonEncoder.withIndent('  ').convert(report));
     },
   );
 }

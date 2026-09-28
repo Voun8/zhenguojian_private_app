@@ -69,27 +69,23 @@ void main() {
     expect(store.sources.any((source) => updater.busy(source.id)), isFalse);
   });
 
-  test(
-    'update scope respects compiled sources and keeps other starts after a failure',
-    () async {
-      final store = await create();
-      final repository = LibraryFeatureRepository()
-        ..startFailures.add('hongguo');
-      final updater = LibraryUpdater(repository, store);
-      addTearDown(updater.dispose);
-      await updater.update(SourceSite.knownValues);
-      expect(
-        repository.starts,
-        store.sources.map((source) => '${source.id}:update').toList(),
-      );
-      expect(updater.error('hongguo'), contains('合成站源启动失败'));
-      for (final source in store.sources.where(
-        (source) => source.id != 'hongguo',
-      )) {
-        expect(updater.busy(source.id), isTrue);
-      }
-    },
-  );
+  test('update scope respects compiled sources and keeps other starts after a failure', () async {
+    final store = await create();
+    final repository = LibraryFeatureRepository()..startFailures.add('hongguo');
+    final updater = LibraryUpdater(repository, store);
+    addTearDown(updater.dispose);
+    await updater.update(SourceSite.knownValues);
+    expect(
+      repository.starts,
+      store.sources.map((source) => '${source.id}:update').toList(),
+    );
+    expect(updater.error('hongguo'), contains('合成站源启动失败'));
+    for (final source in store.sources.where(
+      (source) => source.id != 'hongguo',
+    )) {
+      expect(updater.busy(source.id), isTrue);
+    }
+  });
 
   test(
     'a late update response cannot attach to a changed user session',
@@ -114,62 +110,56 @@ void main() {
     },
   );
 
-  test(
-    'cache refresh uses saved pagination even when stale and never requests a head page',
-    () async {
-      final repository = LibraryFeatureRepository();
-      final browser = CatalogBrowser(repository);
-      final group = SourceGroup('hongguo', '红果', [SourceSite.byId('hongguo')]);
-      repository.cachedPages['hongguo'] = CatalogPage(
-        [first],
-        page: 7,
-        hasMore: true,
-        fresh: false,
-      );
-      final page = await browser.load(group, cacheOnly: true);
-      expect(page.page, 7);
-      expect(page.items.single.id, first.id);
-      expect(repository.requests, isEmpty);
-      await browser.load(group, more: true);
-      expect(repository.pages, [8]);
-    },
-  );
+  test('cache refresh uses saved pagination even when stale and never requests a head page', () async {
+    final repository = LibraryFeatureRepository();
+    final browser = CatalogBrowser(repository);
+    final group = SourceGroup('hongguo', '红果', [SourceSite.byId('hongguo')]);
+    repository.cachedPages['hongguo'] = CatalogPage(
+      [first],
+      page: 7,
+      hasMore: true,
+      fresh: false,
+    );
+    final page = await browser.load(group, cacheOnly: true);
+    expect(page.page, 7);
+    expect(page.items.single.id, first.id);
+    expect(repository.requests, isEmpty);
+    await browser.load(group, more: true);
+    expect(repository.pages, [8]);
+  });
 
-  test(
-    'batch preview excludes VIP, skips duplicates and can recover failed details',
-    () async {
-      final store = await create();
-      final repository = LibraryFeatureRepository()
-        ..details[first.id] = LibraryFeatureRepository.makeDetail(
-          first,
-          504,
-          vipFrom: 504,
-        )
-        ..detailFailures.add(second.id)
-        ..queued.add('${first.id}:1');
-      final batch = BatchDownloads(repository, store, [first, first, second]);
-      addTearDown(batch.dispose);
-      await batch.prepare();
-      expect(batch.items, hasLength(2));
-      expect(batch.pendingEpisodes, 503);
-      expect(batch.failures, 1);
-      expect(repository.enqueues, isEmpty);
-      batch.setQuality(720);
-      await batch.submit();
-      expect(batch.added, 502);
-      expect(batch.existing, 1);
-      expect(repository.enqueues.map((call) => call.$2.length), [500, 3]);
-      expect(repository.enqueues.every((call) => call.$3 == 720), isTrue);
-      expect(repository.queued, isNot(contains('${first.id}:504')));
-      repository.detailFailures.clear();
-      await batch.prepare();
-      await batch.submit();
-      expect(batch.added, 504);
-      expect(batch.pendingEpisodes, 0);
-      expect(repository.detailRequests, [first.id, second.id, second.id]);
-      expect(repository.enqueues.map((call) => call.$2.length), [500, 3, 2]);
-    },
-  );
+  test('batch preview excludes VIP, skips duplicates and can recover failed details', () async {
+    final store = await create();
+    final repository = LibraryFeatureRepository()
+      ..details[first.id] = LibraryFeatureRepository.makeDetail(
+        first,
+        504,
+        vipFrom: 504,
+      )
+      ..detailFailures.add(second.id)
+      ..queued.add('${first.id}:1');
+    final batch = BatchDownloads(repository, store, [first, first, second]);
+    addTearDown(batch.dispose);
+    await batch.prepare();
+    expect(batch.items, hasLength(2));
+    expect(batch.pendingEpisodes, 503);
+    expect(batch.failures, 1);
+    expect(repository.enqueues, isEmpty);
+    batch.setQuality(720);
+    await batch.submit();
+    expect(batch.added, 502);
+    expect(batch.existing, 1);
+    expect(repository.enqueues.map((call) => call.$2.length), [500, 3]);
+    expect(repository.enqueues.every((call) => call.$3 == 720), isTrue);
+    expect(repository.queued, isNot(contains('${first.id}:504')));
+    repository.detailFailures.clear();
+    await batch.prepare();
+    await batch.submit();
+    expect(batch.added, 504);
+    expect(batch.pendingEpisodes, 0);
+    expect(repository.detailRequests, [first.id, second.id, second.id]);
+    expect(repository.enqueues.map((call) => call.$2.length), [500, 3, 2]);
+  });
 
   test(
     'a failed chunk resumes without resubmitting accepted episodes',
@@ -192,26 +182,23 @@ void main() {
     },
   );
 
-  test(
-    'stopping batch preparation keeps the current result and leaves later dramas untouched',
-    () async {
-      final store = await create();
-      final repository = LibraryFeatureRepository()
-        ..pendingDetail = Completer<DramaDetail>();
-      final batch = BatchDownloads(repository, store, [first, second]);
-      addTearDown(batch.dispose);
-      final pending = batch.prepare();
-      batch.stop();
-      repository.pendingDetail!.complete(repository.details[first.id]);
-      await pending;
-      expect(repository.detailRequests, [first.id]);
-      expect(batch.unread, 1);
-      expect(repository.enqueues, isEmpty);
-      repository.pendingDetail = null;
-      await batch.prepare();
-      expect(repository.detailRequests, [first.id, second.id]);
-    },
-  );
+  test('stopping batch preparation keeps the current result and leaves later dramas untouched', () async {
+    final store = await create();
+    final repository = LibraryFeatureRepository()
+      ..pendingDetail = Completer<DramaDetail>();
+    final batch = BatchDownloads(repository, store, [first, second]);
+    addTearDown(batch.dispose);
+    final pending = batch.prepare();
+    batch.stop();
+    repository.pendingDetail!.complete(repository.details[first.id]);
+    await pending;
+    expect(repository.detailRequests, [first.id]);
+    expect(batch.unread, 1);
+    expect(repository.enqueues, isEmpty);
+    repository.pendingDetail = null;
+    await batch.prepare();
+    expect(repository.detailRequests, [first.id, second.id]);
+  });
 
   test(
     'stopping batch addition leaves accepted jobs and submits no later drama',
@@ -236,24 +223,21 @@ void main() {
     },
   );
 
-  test(
-    'changing users during preparation prevents all later reads and queue writes',
-    () async {
-      final store = await create();
-      final repository = LibraryFeatureRepository()
-        ..pendingDetail = Completer<DramaDetail>();
-      final batch = BatchDownloads(repository, store, [first, second]);
-      addTearDown(batch.dispose);
-      final pending = batch.prepare();
-      await store.switchProfile('default');
-      repository.pendingDetail!.complete(repository.details[first.id]);
-      await pending;
-      await batch.submit();
-      expect(batch.hasAccess, isFalse);
-      expect(repository.detailRequests, [first.id]);
-      expect(repository.enqueues, isEmpty);
-    },
-  );
+  test('changing users during preparation prevents all later reads and queue writes', () async {
+    final store = await create();
+    final repository = LibraryFeatureRepository()
+      ..pendingDetail = Completer<DramaDetail>();
+    final batch = BatchDownloads(repository, store, [first, second]);
+    addTearDown(batch.dispose);
+    final pending = batch.prepare();
+    await store.switchProfile('default');
+    repository.pendingDetail!.complete(repository.details[first.id]);
+    await pending;
+    await batch.submit();
+    expect(batch.hasAccess, isFalse);
+    expect(repository.detailRequests, [first.id]);
+    expect(repository.enqueues, isEmpty);
+  });
 
   test(
     'VIP-only batch requires explicit inclusion before it can be added',

@@ -101,9 +101,8 @@ class LanController extends ChangeNotifier with WidgetsBindingObserver {
       final peer = LanPeer.fromJson(lanMap(value['preferred']));
       if (pins[peer.id] != peer.pin ||
           value['remoteAccount'] is! String ||
-          !RegExp(
-            r'^[a-f0-9]{32}$',
-          ).hasMatch(value['remoteAccount'] as String)) {
+          !RegExp(r'^[a-f0-9]{32}$')
+              .hasMatch(value['remoteAccount'] as String)) {
         throw const FormatException('上次连接的设备记录无效');
       }
     }
@@ -599,9 +598,8 @@ class LanController extends ChangeNotifier with WidgetsBindingObserver {
         error = failure.toString();
         if (connection?.peer.id != peer.id) {
           _selected = '';
-          await _native(
-            'disconnect',
-          ).catchError((Object _) => <String, dynamic>{});
+          await _native('disconnect')
+              .catchError((Object _) => <String, dynamic>{});
         }
         _retryAt = DateTime.now().add(const Duration(seconds: 15));
       }

@@ -23,9 +23,10 @@ class BatchDownloadItem {
       if (includeVip || !episode.vip) episode.number: episode,
   }.values.toList()..sort((a, b) => a.number.compareTo(b.number));
 
-  List<Episode> pending(bool includeVip) => episodes(
-    includeVip,
-  ).where((episode) => !_submitted.contains(episode.number)).toList();
+  List<Episode> pending(bool includeVip) =>
+      episodes(includeVip)
+          .where((episode) => !_submitted.contains(episode.number))
+          .toList();
 }
 
 class BatchDownloads extends ChangeNotifier {
@@ -33,9 +34,9 @@ class BatchDownloads extends ChangeNotifier {
     : _epoch = store.profileEpoch,
       includeVip = store.downloadPreferences.includeVip,
       quality = store.downloadPreferences.quality,
-      items = {
-        for (final drama in dramas) drama.id: BatchDownloadItem(drama),
-      }.values.toList() {
+      items = {for (final drama in dramas) drama.id: BatchDownloadItem(drama)}
+          .values
+          .toList() {
     if (items.length > maxDramas) throw AppFailure('一次最多选择 $maxDramas 部短剧');
   }
 

@@ -38,33 +38,30 @@ void main() {
     expect(recovery.next(route(3, count: 10)), PlaybackRecoveryAction.stop);
   });
 
-  test(
-    'a stalled foreground stream times out but paused and background playback do not',
-    () {
-      final health = PlaybackHealth();
-      final start = DateTime(2026, 9, 18);
-      bool stalled(
-        int seconds, {
-        bool playing = true,
-        bool foreground = true,
-        int position = 5,
-      }) => health.stalled(
-        position: Duration(seconds: position),
-        playing: playing,
-        foreground: foreground,
-        now: start.add(Duration(seconds: seconds)),
-      );
-      expect(stalled(0), isFalse);
-      expect(stalled(19), isFalse);
-      expect(stalled(20), isTrue);
-      expect(stalled(21, position: 6), isFalse);
-      expect(stalled(40, position: 6), isFalse);
-      expect(stalled(60, playing: false, position: 6), isFalse);
-      expect(stalled(80, playing: false, position: 6), isFalse);
-      expect(stalled(100, foreground: false, position: 6), isFalse);
-      expect(stalled(101, position: 6), isFalse);
-      health.reset();
-      expect(stalled(200, position: 6), isFalse);
-    },
-  );
+  test('a stalled foreground stream times out but paused and background playback do not', () {
+    final health = PlaybackHealth();
+    final start = DateTime(2026, 9, 18);
+    bool stalled(
+      int seconds, {
+      bool playing = true,
+      bool foreground = true,
+      int position = 5,
+    }) => health.stalled(
+      position: Duration(seconds: position),
+      playing: playing,
+      foreground: foreground,
+      now: start.add(Duration(seconds: seconds)),
+    );
+    expect(stalled(0), isFalse);
+    expect(stalled(19), isFalse);
+    expect(stalled(20), isTrue);
+    expect(stalled(21, position: 6), isFalse);
+    expect(stalled(40, position: 6), isFalse);
+    expect(stalled(60, playing: false, position: 6), isFalse);
+    expect(stalled(80, playing: false, position: 6), isFalse);
+    expect(stalled(100, foreground: false, position: 6), isFalse);
+    expect(stalled(101, position: 6), isFalse);
+    health.reset();
+    expect(stalled(200, position: 6), isFalse);
+  });
 }

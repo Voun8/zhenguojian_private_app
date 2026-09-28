@@ -170,9 +170,8 @@ void main() {
             theme: AppTheme.light,
             home: StatefulBuilder(
               builder: (context, setState) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: TextScaler.linear(2)),
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(2)),
                 child: Scaffold(
                   bottomNavigationBar: AppBottomNavigation(
                     selectedIndex: selected,
@@ -254,9 +253,8 @@ void main() {
         await tester.pump(const Duration(milliseconds: 40));
       }
       expect(
-        Theme.of(
-          tester.element(find.byKey(const ValueKey('video-theme'))),
-        ).brightness,
+        Theme.of(tester.element(find.byKey(const ValueKey('video-theme'))))
+            .brightness,
         Brightness.dark,
       );
       expect(

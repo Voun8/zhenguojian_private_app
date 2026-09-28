@@ -236,33 +236,29 @@ void main() {
     },
   );
 
-  test(
-    'group pagination retries failed member without skipping or reloading exhausted members',
-    () async {
-      final repository = CategoryRepository()
-        ..failLegacy = true
-        ..paginate = true;
-      final browser = CatalogBrowser(repository);
-      final group = SourceGroup.fromSources(
-        SourceSite.knownValues,
-      ).firstWhere((group) => group.id == 'huangguo');
-      final first = await browser.load(group);
-      expect(first.items.length, 2);
-      expect(first.warning, '合成入口失败');
-      repository.failLegacy = false;
-      final next = await browser.load(group, more: true);
-      expect(
-        repository.categoryRequests
-            .where((request) => request == 'cloudfront||1')
-            .length,
-        2,
-      );
-      expect(repository.categoryRequests, contains('huangguo-video||2'));
-      expect(repository.categoryRequests, isNot(contains('huangguoai||2')));
-      expect(next.items.length, 4);
-      expect(next.warning, isEmpty);
-    },
-  );
+  test('group pagination retries failed member without skipping or reloading exhausted members', () async {
+    final repository = CategoryRepository()
+      ..failLegacy = true
+      ..paginate = true;
+    final browser = CatalogBrowser(repository);
+    final group = SourceGroup.fromSources(SourceSite.knownValues)
+        .firstWhere((group) => group.id == 'huangguo');
+    final first = await browser.load(group);
+    expect(first.items.length, 2);
+    expect(first.warning, '合成入口失败');
+    repository.failLegacy = false;
+    final next = await browser.load(group, more: true);
+    expect(
+      repository.categoryRequests
+          .where((request) => request == 'cloudfront||1')
+          .length,
+      2,
+    );
+    expect(repository.categoryRequests, contains('huangguo-video||2'));
+    expect(repository.categoryRequests, isNot(contains('huangguoai||2')));
+    expect(next.items.length, 4);
+    expect(next.warning, isEmpty);
+  });
 
   testWidgets(
     'rankings are separate from categories and preserve upstream rank numbers',

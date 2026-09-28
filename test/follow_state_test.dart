@@ -301,17 +301,14 @@ void main() {
     expect(await restarted.exportBackup(), before);
   });
 
-  test(
-    'continue respects actual episode numbers and never skips unfinished progress',
-    () {
-      final episodes = [
-        for (final number in [1, 3, 5])
-          Episode({'currentEpisode': number}, number),
-      ];
-      expect(resumeEpisodeIndex(episodes, watch(episode: 3, position: 12)), 1);
-      expect(resumeEpisodeIndex(episodes, watch(episode: 3, position: 60)), 2);
-      expect(resumeEpisodeIndex(episodes, watch(episode: 2)), 1);
-      expect(resumeEpisodeIndex(episodes, watch(episode: 5, position: 60)), 2);
-    },
-  );
+  test('continue respects actual episode numbers and never skips unfinished progress', () {
+    final episodes = [
+      for (final number in [1, 3, 5])
+        Episode({'currentEpisode': number}, number),
+    ];
+    expect(resumeEpisodeIndex(episodes, watch(episode: 3, position: 12)), 1);
+    expect(resumeEpisodeIndex(episodes, watch(episode: 3, position: 60)), 2);
+    expect(resumeEpisodeIndex(episodes, watch(episode: 2)), 1);
+    expect(resumeEpisodeIndex(episodes, watch(episode: 5, position: 60)), 2);
+  });
 }

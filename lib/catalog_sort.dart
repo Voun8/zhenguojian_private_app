@@ -127,8 +127,8 @@ int _seasonNumber(String label) {
   return number + digit;
 }
 
-String _naturalTitle(String title) =>
-    normalizedSearchText(title).replaceAllMapped(
+String _naturalTitle(String title) => normalizedSearchText(title)
+    .replaceAllMapped(
       RegExp(r'第([0-9零〇一二两兩三四五六七八九十百]+)([季部])'),
       (match) => '第${_seasonNumber(match[1]!)}${match[2]}',
     );
