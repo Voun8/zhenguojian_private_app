@@ -88,7 +88,18 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      - run: python scripts/build_android.py ${{ matrix.arguments }}
+      - name: Build Android package
+        run: |
+          for attempt in 1 2 3; do
+            if python scripts/build_android.py ${{ matrix.arguments }}; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Android 构建失败，30 秒后重试（$attempt/3）" >&2
+              sleep 30
+            fi
+          done
+          exit 1
       - name: Remove signing files
         if: always()
         run: python scripts/configure_signing.py --clean
