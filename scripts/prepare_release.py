@@ -18,7 +18,7 @@ def prepare(downloads, output, project):
         packages = {
             'android': [f'{edition}-{version}-{abi}.apk' for abi in ('arm64-v8a', 'armeabi-v7a', 'x86_64')],
             'windows': [f'{edition}-{version}-windows-x64.zip'],
-            'ios-unsigned': [f'{edition}-{version}-ios-unsigned.ipa'],
+            'ios-altstore': [f'{edition}-{version}-ios-altstore.ipa'],
         }
         for platform, names in packages.items():
             folder = downloads / f'{edition}-{platform}'
@@ -47,7 +47,7 @@ def prepare(downloads, output, project):
     (output / 'SHA256SUMS.txt').write_text('\n'.join(sorted(checksums)) + '\n', encoding='ascii')
     (output / 'RELEASE_NOTES.md').write_text(
         f'开发快照 {version}。Android、Windows 和 iOS 两种编译版本的构建产物及 SHA256 校验值见附件。\n\n'
-        'iOS 附件是未签名 IPA，需使用自己的 Apple 证书和描述文件签名后安装。各平台真实设备和站源播放仍待集中验收。\n',
+        'iOS 附件为 AltStore 兼容 IPA，使用 AltStore 以自己的 Apple ID 重签名后安装。各平台真实设备和站源播放仍待集中验收。\n',
         encoding='utf-8',
     )
 

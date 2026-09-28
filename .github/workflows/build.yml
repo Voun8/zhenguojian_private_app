@@ -166,7 +166,7 @@ jobs:
       - run: python3 scripts/build_ios.py ${{ matrix.arguments }}
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.edition }}-ios-unsigned
+          name: ${{ matrix.edition }}-ios-altstore
           path: dist/ios/*
           if-no-files-found: error
           retention-days: 14

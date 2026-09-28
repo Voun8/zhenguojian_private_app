@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 from app_build import BuildVariant, add_variant_argument
@@ -68,6 +69,31 @@ def build_core(simulator=False, variant=BuildVariant()):
     run(arguments + ['-output', str(framework)])
 
 
+def package_altstore(application, destination):
+    with tempfile.TemporaryDirectory() as temporary:
+        temporary_path = Path(temporary)
+        payload = temporary_path / 'Payload'
+        packaged_application = payload / application.name
+        shutil.copytree(application, packaged_application)
+        strip_frameworks = packaged_application / 'Frameworks' / 'ffmpegkit.framework' / 'strip-frameworks.sh'
+        if strip_frameworks.is_file():
+            strip_frameworks.chmod(strip_frameworks.stat().st_mode & ~0o111)
+        run(['dot_clean', '-m', str(temporary_path)])
+        for framework in sorted((packaged_application / 'Frameworks').glob('*.framework')):
+            run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(framework)])
+        run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(packaged_application)])
+        run(['codesign', '--verify', '--deep', '--strict', str(packaged_application)])
+        destination.unlink(missing_ok=True)
+        environment = os.environ | {'COPYFILE_DISABLE': '1'}
+        run(['zip', '-r', '-X', str(destination), 'Payload'], cwd=temporary_path, env=environment)
+    with zipfile.ZipFile(destination) as archive:
+        names = set(archive.namelist())
+    if f'Payload/{application.name}/Runner' not in names:
+        raise SystemExit('IPA 缺少 Payload/Runner.app/Runner。')
+    if any(name.startswith('__MACOSX/') or '/._' in name for name in names):
+        raise SystemExit('IPA 含有不兼容的 macOS 元数据文件。')
+
+
 def main():
     parser = argparse.ArgumentParser(description='构建红果鉴 / 真果鉴 iOS 核心和应用')
     parser.add_argument('--core-only', action='store_true')
@@ -104,12 +130,8 @@ def main():
         for symbol in ['_DuanjuRequest', '_DuanjuFree']:
             if symbol not in symbols:
                 raise SystemExit('iOS 包缺少 FFI 入口：' + symbol)
-        destination = output / f'{variant.slug}-{version}-ios-unsigned.ipa'
-        with tempfile.TemporaryDirectory() as temporary:
-            payload = Path(temporary) / 'Payload'
-            payload.mkdir()
-            run(['ditto', str(application), str(payload / application.name)])
-            run(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', str(payload), str(destination)])
+        destination = output / f'{variant.slug}-{version}-ios-altstore.ipa'
+        package_altstore(application, destination)
         artifacts.append(destination)
     if not artifacts:
         raise SystemExit('未生成 iOS 安装包。')
